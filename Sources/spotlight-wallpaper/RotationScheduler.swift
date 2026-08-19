@@ -87,8 +87,14 @@ final class RotationScheduler: ObservableObject {
             return
         }
         let index = await store.store(images)
-        let today = todaysEntries(from: index)
-        if let first = today.first {
+        // Apply one of the images from *this* fetch, not just-any entry from today —
+        // store() sorts the index by fetch time, so on a second fetch within the same
+        // day (manual refresh, or switching the Windows 10/11 feed), "today's entries"
+        // also contains earlier-today images and picking the first of those would just
+        // silently re-apply the old one instead of showing what was just fetched.
+        let fetchedFileNames = Set(images.map(\.fileName))
+        let newlyStored = index.filter { fetchedFileNames.contains($0.fileName) }
+        if let first = newlyStored.first {
             apply(first)
         }
     }
