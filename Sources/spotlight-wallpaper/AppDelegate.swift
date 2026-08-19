@@ -22,9 +22,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         menu.autoenablesItems = false
 
+        // Left enabled deliberately: a disabled NSMenuItem with a custom NSHostingView
+        // suppresses layer-backed bitmap content (SwiftUI Image) even though text still
+        // renders fine via a different path. Clicking the header just closes the menu,
+        // same as clicking any other row with no side effect — harmless.
         let headerItem = NSMenuItem()
         headerItem.view = NSHostingView(rootView: MenuHeaderView(scheduler: scheduler))
-        headerItem.isEnabled = false
         menu.addItem(headerItem)
 
         menu.addItem(.separator())
