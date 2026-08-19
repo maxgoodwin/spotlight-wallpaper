@@ -8,12 +8,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var preferencesWindow: NSWindow?
     private var revealInFinderItem: NSMenuItem?
     private var learnMoreItem: NSMenuItem?
+    private let headerView = MenuHeaderView()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.button?.image = NSImage(systemSymbolName: "photo.on.rectangle.angled", accessibilityDescription: "Spotlight Wallpaper")
         statusItem.menu = buildMenu()
 
+        scheduler.onUpdate = { [weak self] in self?.refreshHeader() }
         scheduler.start()
     }
 
@@ -22,12 +24,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         menu.autoenablesItems = false
 
-        // Left enabled deliberately: a disabled NSMenuItem with a custom NSHostingView
-        // suppresses layer-backed bitmap content (SwiftUI Image) even though text still
-        // renders fine via a different path. Clicking the header just closes the menu,
-        // same as clicking any other row with no side effect — harmless.
         let headerItem = NSMenuItem()
-        headerItem.view = NSHostingView(rootView: MenuHeaderView(scheduler: scheduler))
+        headerItem.view = headerView
         menu.addItem(headerItem)
 
         menu.addItem(.separator())
@@ -59,9 +57,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // MARK: - NSMenuDelegate
 
     func menuNeedsUpdate(_ menu: NSMenu) {
+        refreshHeader()
         let entry = scheduler.currentEntry
         revealInFinderItem?.isEnabled = entry != nil
         learnMoreItem?.isEnabled = !(entry?.title ?? "").isEmpty
+    }
+
+    private func refreshHeader() {
+        guard let entry = scheduler.currentEntry else {
+            headerView.configure(image: nil, title: "Fetching today's wallpaper…", copyright: nil)
+            return
+        }
+        let image = NSImage(contentsOf: scheduler.localURL(for: entry))
+        headerView.configure(image: image, title: entry.title ?? "Windows Spotlight", copyright: entry.copyright)
     }
 
     // MARK: - Actions

@@ -1,46 +1,67 @@
-import SwiftUI
+import AppKit
 
-/// Non-interactive header shown at the top of the status item's menu: the
-/// current wallpaper's thumbnail, title, and copyright/description. This is
-/// the "learn more about this image" equivalent.
-struct MenuHeaderView: View {
-    @ObservedObject var scheduler: RotationScheduler
+/// Non-interactive header row for the status item's menu: the current
+/// wallpaper's thumbnail, title, and copyright/description. This is the
+/// "learn more about this image" equivalent.
+///
+/// Built with plain AppKit views rather than SwiftUI/NSHostingView: SwiftUI
+/// `Image` content hosted inside a custom `NSMenuItem` view does not reliably
+/// composite through NSMenu's rendering pipeline (text-only SwiftUI content
+/// renders fine, which is what made this easy to miss). NSImageView has no
+/// such issue and is the standard approach for custom menu item content.
+final class MenuHeaderView: NSView {
+    private let imageView = NSImageView()
+    private let titleLabel = NSTextField(labelWithString: "")
+    private let copyrightLabel = NSTextField(labelWithString: "")
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            if let entry = scheduler.currentEntry {
-                thumbnail(for: entry)
-                    .frame(height: 120)
-                    .frame(maxWidth: .infinity)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+    private static let width: CGFloat = 260
+    private static let horizontalPadding: CGFloat = 14
+    private static let imageHeight: CGFloat = 120
+    private static let titleHeight: CGFloat = 32
+    private static let copyrightHeight: CGFloat = 28
+    private static let totalHeight: CGFloat =
+        8 + imageHeight + 6 + titleHeight + 2 + copyrightHeight + 8
 
-                Text(entry.title ?? "Windows Spotlight")
-                    .font(.headline)
-                    .lineLimit(2)
+    override var isFlipped: Bool { true }
 
-                if let copyright = entry.copyright, !copyright.isEmpty {
-                    Text(copyright)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                }
-            } else {
-                ProgressView("Fetching today's wallpaper…")
-                    .frame(maxWidth: .infinity, minHeight: 120)
-            }
-        }
-        .padding(EdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14))
-        .frame(width: 260)
+    init() {
+        super.init(frame: NSRect(x: 0, y: 0, width: Self.width, height: Self.totalHeight))
+
+        imageView.imageScaling = .scaleProportionallyUpOrDown
+        imageView.wantsLayer = true
+        imageView.layer?.cornerRadius = 6
+        imageView.layer?.masksToBounds = true
+
+        titleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        titleLabel.lineBreakMode = .byWordWrapping
+        titleLabel.cell?.wraps = true
+
+        copyrightLabel.font = .systemFont(ofSize: 11)
+        copyrightLabel.textColor = .secondaryLabelColor
+        copyrightLabel.lineBreakMode = .byWordWrapping
+        copyrightLabel.cell?.wraps = true
+
+        let contentWidth = Self.width - 2 * Self.horizontalPadding
+        var y: CGFloat = 8
+        imageView.frame = NSRect(x: Self.horizontalPadding, y: y, width: contentWidth, height: Self.imageHeight)
+        y += Self.imageHeight + 6
+        titleLabel.frame = NSRect(x: Self.horizontalPadding, y: y, width: contentWidth, height: Self.titleHeight)
+        y += Self.titleHeight + 2
+        copyrightLabel.frame = NSRect(x: Self.horizontalPadding, y: y, width: contentWidth, height: Self.copyrightHeight)
+
+        addSubview(imageView)
+        addSubview(titleLabel)
+        addSubview(copyrightLabel)
     }
 
-    @ViewBuilder
-    private func thumbnail(for entry: ImageStore.Entry) -> some View {
-        if let image = NSImage(contentsOf: scheduler.localURL(for: entry)) {
-            Image(nsImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } else {
-            Rectangle().fill(.quaternary)
-        }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(image: NSImage?, title: String, copyright: String?) {
+        imageView.image = image
+        titleLabel.stringValue = title
+        copyrightLabel.stringValue = copyright ?? ""
+        copyrightLabel.isHidden = (copyright ?? "").isEmpty
     }
 }
