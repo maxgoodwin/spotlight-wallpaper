@@ -21,6 +21,28 @@ final class RotationScheduler: ObservableObject {
     func start() {
         Task { await bootstrap() }
         rescheduleTimer()
+        observeSpaceChanges()
+    }
+
+    /// NSWorkspace.setDesktopImageURL only ever affects the currently-active Space on
+    /// a given screen — macOS has no public API to set wallpaper on a Space you aren't
+    /// currently viewing (and no, the classic ~/Library/Application Support/Dock/
+    /// desktoppicture.db trick other tools use doesn't apply here either; Apple has
+    /// since moved wallpaper storage to a private WallpaperAgent with no documented
+    /// external interface). So instead of trying to write to off-screen Spaces, just
+    /// re-apply the current entry every time the active Space changes — whichever
+    /// desktop you actually land on then always matches.
+    private func observeSpaceChanges() {
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, let entry = self.currentEntry else { return }
+                WallpaperManager.setWallpaper(self.store.localURL(for: entry))
+            }
+        }
     }
 
     /// Call after the user changes the rotation interval in Preferences.
