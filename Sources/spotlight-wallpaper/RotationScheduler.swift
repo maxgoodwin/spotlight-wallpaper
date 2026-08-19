@@ -81,7 +81,7 @@ final class RotationScheduler: ObservableObject {
 
     private func refresh() async {
         let portrait = isPortraitMainScreen()
-        let images = await SpotlightAPI.fetchImages(portrait: portrait, locale: Preferences.effectiveLocale)
+        let images = await SpotlightAPI.fetchImages(portrait: portrait, locale: Preferences.effectiveLocale, preferV3: Preferences.matchWindows10)
         guard !images.isEmpty else {
             FileHandle.standardError.write("spotlight-wallpaper: fetch returned no images, keeping current wallpaper\n".data(using: .utf8)!)
             return

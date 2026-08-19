@@ -19,16 +19,24 @@ enum SpotlightAPI {
         }
     }
 
-    /// Fetch today's Spotlight image batch, trying the v4 (4K) endpoint first and
-    /// falling back to v3 (1080p) if v4 fails or returns nothing usable.
-    static func fetchImages(portrait: Bool, locale: Locale = .current) async -> [SpotlightImage] {
+    /// Fetch today's Spotlight image batch.
+    ///
+    /// `preferV3` picks which feed to try first: v4 (fd.api.iris.microsoft.com, up to
+    /// 4K) is what Windows 11 uses; v3 (arc.msn.com, capped at 1080p) is what Windows 10
+    /// uses. These are separately-curated pools — not the same images at different
+    /// resolutions — so this is a real content choice, not just a quality one. Either
+    /// way, the other version is tried as a fallback if the preferred one fails.
+    static func fetchImages(portrait: Bool, locale: Locale = .current, preferV3: Bool = false) async -> [SpotlightImage] {
         let region = (locale.region?.identifier ?? "US").uppercased()
         let localeTag = locale.identifier(.bcp47)
 
-        if let images = try? await fetchV4(region: region, locale: localeTag, portrait: portrait), !images.isEmpty {
+        let primary = { try await preferV3 ? fetchV3(region: region, locale: localeTag, portrait: portrait) : fetchV4(region: region, locale: localeTag, portrait: portrait) }
+        let secondary = { try await preferV3 ? fetchV4(region: region, locale: localeTag, portrait: portrait) : fetchV3(region: region, locale: localeTag, portrait: portrait) }
+
+        if let images = try? await primary(), !images.isEmpty {
             return images
         }
-        if let images = try? await fetchV3(region: region, locale: localeTag, portrait: portrait), !images.isEmpty {
+        if let images = try? await secondary(), !images.isEmpty {
             return images
         }
         return []
