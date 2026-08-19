@@ -100,13 +100,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func openPreferences() {
         if preferencesWindow == nil {
             let window = NSWindow(
-                contentRect: .zero,
-                styleMask: [.titled, .closable],
+                contentRect: NSRect(x: 0, y: 0, width: 400, height: 260),
+                styleMask: [.titled, .closable, .resizable],
                 backing: .buffered,
                 defer: false
             )
+            let hostingController = NSHostingController(rootView: PreferencesView(scheduler: scheduler))
+            // Without this, the window doesn't auto-size to the SwiftUI content's ideal
+            // size — it just keeps whatever frame it was created with, clipping content
+            // like wrapped multi-line text. .resizable in styleMask above is a manual
+            // fallback in case content ever grows beyond what preferredContentSize catches.
+            hostingController.sizingOptions = [.preferredContentSize]
             window.title = "Spotlight Wallpaper Preferences"
-            window.contentViewController = NSHostingController(rootView: PreferencesView(scheduler: scheduler))
+            window.contentViewController = hostingController
             window.isReleasedWhenClosed = false
             window.center()
             preferencesWindow = window

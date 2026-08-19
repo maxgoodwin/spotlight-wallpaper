@@ -36,10 +36,16 @@ struct PreferencesView: View {
                 Preferences.orientation = newValue
             }
 
-            TextField("Locale override (e.g. en-US)", text: $localeOverride)
-                .onChange(of: localeOverride) { _, newValue in
-                    Preferences.localeOverride = newValue.isEmpty ? nil : newValue
-                }
+            VStack(alignment: .leading, spacing: 4) {
+                TextField("Locale override (e.g. en-US)", text: $localeOverride)
+                    .onChange(of: localeOverride) { _, newValue in
+                        Preferences.localeOverride = newValue.isEmpty ? nil : newValue
+                    }
+
+                Text("Currently using: \(effectiveLocaleDisplay)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             if LaunchAtLogin.isSupported {
                 Toggle("Launch at login", isOn: $launchAtLogin)
@@ -52,9 +58,16 @@ struct PreferencesView: View {
                 Text("Running via Homebrew? Use `brew services start spotlight-wallpaper` instead — it keeps this app running across logins automatically.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(20)
-        .frame(width: 360)
+        .frame(width: 400)
+        .fixedSize()
+    }
+
+    private var effectiveLocaleDisplay: String {
+        let tag = Preferences.effectiveLocale.identifier(.bcp47)
+        return localeOverride.isEmpty ? "\(tag) (auto-detected)" : tag
     }
 }
