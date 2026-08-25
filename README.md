@@ -7,7 +7,7 @@ more about this picture" info (title + photographer/copyright).
 It's not a Bing Wallpaper clone or a random-Unsplash-photo app — it calls the same
 public Spotlight image feed Windows itself uses, so you get the exact same photos.
 
-<p align="center">(screenshot coming soon)</p>
+<p align="center"><img src="docs/screenshot.jpg" alt="spotlight-wallpaper menu bar popover showing the current wallpaper's title and photographer credit" width="700"></p>
 
 ## Features
 
