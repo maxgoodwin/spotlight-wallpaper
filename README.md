@@ -31,6 +31,10 @@ This installs **Spotlight Wallpaper.app** to `/Applications` — it's a real, Sp
 app (⌘Space, type "Spotlight Wallpaper"), not just a CLI binary. Launch it once, then turn on
 **Launch at login** in Preferences… to have it start automatically from then on.
 
+> **First launch:** the app is ad-hoc signed, not notarized by Apple, so macOS will likely warn
+> that it "cannot be verified" the first time you open it. Go to **System Settings → Privacy &
+> Security → Open Anyway**, then launch it again. You only need to do this once.
+
 ## Usage
 
 Click the menu bar icon (a photo-stack glyph) to see the current wallpaper's info
