@@ -29,8 +29,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(headerItem)
 
         menu.addItem(.separator())
-        menu.addItem(item("Next Wallpaper", #selector(nextWallpaper)))
-        menu.addItem(item("Refresh Now", #selector(refreshNow)))
+        menu.addItem(item(
+            "Next Wallpaper",
+            #selector(nextWallpaper),
+            toolTip: "Switch to the next image already downloaded from today's batch. No network request."
+        ))
+        menu.addItem(item(
+            "Refresh Now",
+            #selector(refreshNow),
+            toolTip: "Fetch a new batch of images from Windows Spotlight right now, then apply one of them."
+        ))
 
         let reveal = item("Reveal in Finder", #selector(revealInFinder))
         menu.addItem(reveal)
@@ -48,9 +56,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return menu
     }
 
-    private func item(_ title: String, _ action: Selector, keyEquivalent: String = "") -> NSMenuItem {
+    private func item(_ title: String, _ action: Selector, keyEquivalent: String = "", toolTip: String? = nil) -> NSMenuItem {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
         item.target = self
+        item.toolTip = toolTip
         return item
     }
 

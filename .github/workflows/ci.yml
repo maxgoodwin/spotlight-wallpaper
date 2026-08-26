@@ -16,3 +16,8 @@ jobs:
         run: .build/debug/spotlight-wallpaper --version
       - name: Fetch smoke test
         run: .build/debug/spotlight-wallpaper --fetch-once
+      - name: Build app bundle
+        run: scripts/build-app.sh
+      - name: App bundle smoke test
+        run: |
+          ".build/Spotlight Wallpaper.app/Contents/MacOS/spotlight-wallpaper" --version

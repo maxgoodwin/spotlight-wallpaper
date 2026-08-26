@@ -1,14 +1,11 @@
 import Foundation
 import ServiceManagement
 
-/// Best-effort "launch at login" toggle for people running the binary directly
-/// (double-clicking it or invoking it from Terminal on their own).
+/// "Launch at login" toggle, backed by `SMAppService.mainApp`.
 ///
-/// The primary, recommended way to keep spotlight-wallpaper running across logins
-/// is `brew services start spotlight-wallpaper`, which registers a proper launchd
-/// LaunchAgent — see README. `SMAppService.mainApp` is really designed for apps
-/// running from an `.app` bundle, so outside that context this degrades gracefully
-/// rather than pretending to succeed.
+/// `SMAppService.mainApp` only works for code running from a proper `.app` bundle
+/// (see README — the app is distributed as a Homebrew cask, not a bare binary), so
+/// outside that context this degrades gracefully rather than pretending to succeed.
 enum LaunchAtLogin {
     static var isSupported: Bool {
         Bundle.main.bundleURL.pathExtension == "app"

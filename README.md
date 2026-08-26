@@ -24,29 +24,26 @@ public Spotlight image feed Windows itself uses, so you get the exact same photo
 ## Install
 
 ```sh
-brew tap maxgoodwin/spotlight-wallpaper
-brew install spotlight-wallpaper
-brew services start spotlight-wallpaper   # keeps it running across logins
+brew install --cask maxgoodwin/spotlight-wallpaper/spotlight-wallpaper
 ```
 
-To stop it: `brew services stop spotlight-wallpaper`.
-
-You can also just run `spotlight-wallpaper` directly (e.g. from Terminal) without
-`brew services` — it'll run until you quit it from the menu bar or close the terminal.
+This installs **Spotlight Wallpaper.app** to `/Applications` — it's a real, Spotlight-searchable
+app (⌘Space, type "Spotlight Wallpaper"), not just a CLI binary. Launch it once, then turn on
+**Launch at login** in Preferences… to have it start automatically from then on.
 
 ## Usage
 
 Click the menu bar icon (a photo-stack glyph) to see the current wallpaper's info
 and actions. Open **Preferences…** to change the rotation interval, force a
-landscape/portrait image, or override the locale used to fetch images (Spotlight's
-selection varies a bit by region).
+landscape/portrait image, override the locale used to fetch images (Spotlight's
+selection varies a bit by region), or turn on **Launch at login**.
 
-CLI flags (useful for scripting/debugging):
+CLI flags (useful for scripting/debugging) — run the binary inside the app bundle directly:
 
-```
-spotlight-wallpaper --fetch-once   # print today's images' titles/copyright/URLs and exit
-spotlight-wallpaper --version
-spotlight-wallpaper --help
+```sh
+"/Applications/Spotlight Wallpaper.app/Contents/MacOS/spotlight-wallpaper" --fetch-once   # print today's images' titles/copyright/URLs and exit
+"/Applications/Spotlight Wallpaper.app/Contents/MacOS/spotlight-wallpaper" --version
+"/Applications/Spotlight Wallpaper.app/Contents/MacOS/spotlight-wallpaper" --help
 ```
 
 ## How it works
@@ -75,6 +72,11 @@ swift build -c release
 ```
 
 Requires macOS 14+ and Xcode 15+ (or the matching Command Line Tools) for Swift 5.9+.
+
+To build the actual `.app` bundle (matching what the cask installs) instead of the bare
+binary above, run `scripts/build-app.sh` — it produces `.build/Spotlight Wallpaper.app`
+(pass `--zip` to also produce a zip for a release). Regenerate the icon with
+`scripts/make-icon.sh` if you change the glyph in `scripts/render-icon.swift`.
 
 ## Contributing
 

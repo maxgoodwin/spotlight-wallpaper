@@ -78,7 +78,7 @@ struct PreferencesView: View {
                         }
                     }
             } else {
-                Text("Running via Homebrew? Use `brew services start spotlight-wallpaper` instead — it keeps this app running across logins automatically.")
+                Text("Launch at login is only available when running the Spotlight Wallpaper app bundle, not the bare command-line binary.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

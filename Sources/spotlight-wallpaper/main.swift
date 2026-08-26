@@ -1,6 +1,6 @@
 import AppKit
 
-let version = "0.1.8"
+let version = "0.1.9"
 
 func printUsage() {
     print("""
