@@ -31,7 +31,7 @@ if arguments.contains("--help") || arguments.contains("-h") {
 if arguments.contains("--fetch-once") {
     let semaphore = DispatchSemaphore(value: 0)
     Task {
-        let images = await SpotlightAPI.fetchImages(portrait: false, locale: Preferences.effectiveLocale, preferV3: Preferences.matchWindows10)
+        let images = await SpotlightAPI.fetchImages(portrait: false, locale: Preferences.effectiveLocale)
         if images.isEmpty {
             print("No images returned.")
         } else {

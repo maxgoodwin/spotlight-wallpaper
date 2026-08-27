@@ -7,7 +7,6 @@ struct PreferencesView: View {
     @State private var orientation: Preferences.Orientation = Preferences.orientation
     @State private var localeOverride: String = Preferences.localeOverride ?? ""
     @State private var launchAtLogin: Bool = LaunchAtLogin.isEnabled
-    @State private var matchWindows10: Bool = Preferences.matchWindows10
 
     private static let intervalOptions: [(label: String, hours: Double)] = [
         ("Every 3 hours", 3),
@@ -56,18 +55,6 @@ struct PreferencesView: View {
                 Text("Currently using: \(effectiveLocaleDisplay)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-
-            VStack(alignment: .leading, spacing: 6) {
-                Toggle("Match Windows 10 wallpapers", isOn: $matchWindows10)
-                    .onChange(of: matchWindows10) { _, newValue in
-                        Preferences.matchWindows10 = newValue
-                        scheduler.refreshManually()
-                    }
-                Text("Windows 10 and 11 pull from separately-curated image pools, not the same photos at different resolutions. On: matches Windows 10, capped at 1080p. Off (default): the sharper 4K pool Windows 11 uses.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
 
             if LaunchAtLogin.isSupported {

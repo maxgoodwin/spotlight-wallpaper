@@ -9,7 +9,6 @@ enum Preferences {
         static let rotationIntervalHours = "rotationIntervalHours"
         static let localeOverride = "localeOverride"
         static let orientation = "orientation"
-        static let matchWindows10 = "matchWindows10"
     }
 
     enum Orientation: String, CaseIterable {
@@ -35,15 +34,6 @@ enum Preferences {
     static var orientation: Orientation {
         get { Orientation(rawValue: defaults.string(forKey: Key.orientation) ?? "") ?? .auto }
         set { defaults.set(newValue.rawValue, forKey: Key.orientation) }
-    }
-
-    /// When true, fetch from the v3 (arc.msn.com) feed that Windows 10 itself uses,
-    /// instead of the default v4 (fd.api.iris.microsoft.com) feed Windows 11 uses.
-    /// These are separately-curated image pools, not the same content at different
-    /// resolutions — v3 is capped at 1080p, v4 goes up to 4K.
-    static var matchWindows10: Bool {
-        get { defaults.bool(forKey: Key.matchWindows10) }
-        set { defaults.set(newValue, forKey: Key.matchWindows10) }
     }
 
     static var effectiveLocale: Locale {
